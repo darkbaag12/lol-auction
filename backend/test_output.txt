@@ -1,0 +1,23 @@
+HEADER 0: 타임스탬프
+HEADER 1: 성명
+HEADER 2: 닉네임#태그
+HEADER 3: 최고 티어 (fow.kr 기준 시즌 15, 16 최고 티어)
+ex) 골드 3 -> G3으로 기재
+HEADER 4: 주 라인
+HEADER 5: 부 라인
+HEADER 6: 선호 챔피언 두 개
+HEADER 7: 신입 회원 여부
+HEADER 8: 각오 한 마디
+HEADER 9: 팀장 지원 여부 (신입 회원은 지원 불가)
+HEADER 10: 해설/녹화 지원 여부
+DATA 0: 05-3월-2026
+DATA 1: 이승현
+DATA 2: 끈기노력빼면시체#KR1
+DATA 3: E1
+DATA 4: 정글
+DATA 5: 서폿
+DATA 6: 니달리 카직스
+DATA 7: X
+DATA 8: 열심히 하겠습니다 화이팅
+DATA 9: O
+DATA 10: O
