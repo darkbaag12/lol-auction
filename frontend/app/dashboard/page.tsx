@@ -1,0 +1,279 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { api } from '../../lib/api';
+import { useWebSocket } from '../../hooks/useWebSocket';
+import { Tournament, TeamResponse, PlayerResponse, AuctionRound, BidResponse, POSITION_LABELS, TIER_COLORS } from '../../lib/types';
+import { Suspense } from 'react';
+
+function DashboardContent() {
+  const searchParams = useSearchParams();
+  const tournamentId = Number(searchParams.get('tournamentId') || '0');
+
+  const [tournament, setTournament] = useState<Tournament | null>(null);
+  const [teams, setTeams] = useState<TeamResponse[]>([]);
+  const [players, setPlayers] = useState<PlayerResponse[]>([]);
+  const [activeRound, setActiveRound] = useState<AuctionRound | null>(null);
+  const [bidHistory, setBidHistory] = useState<BidResponse[]>([]);
+
+  // Current resolved tournament ID (from URL or latest)
+  const [resolvedTournamentId, setResolvedTournamentId] = useState<number | null>(tournamentId || null);
+  const { connected, lastMessage } = useWebSocket(resolvedTournamentId || null);
+
+  const fetchData = async () => {
+    try {
+      let tId = resolvedTournamentId;
+      if (!tId) {
+        const latestTournament = await api.getLatestTournament() as Tournament;
+        if (latestTournament) {
+          tId = latestTournament.id;
+          setResolvedTournamentId(tId);
+        } else {
+          return;
+        }
+      }
+      
+      const [t, tm, pl] = await Promise.all([
+        api.getTournament(tId) as Promise<Tournament>,
+        api.getTeams(tId) as Promise<TeamResponse[]>,
+        api.getPlayers(tId) as Promise<PlayerResponse[]>,
+      ]);
+      setTournament(t);
+      setTeams(tm);
+      setPlayers(pl);
+
+      const round = await api.getActiveRound(tId) as AuctionRound | null;
+      if (round) {
+        setActiveRound(round);
+        const bids = await api.getBidHistory(round.roundId) as BidResponse[];
+        setBidHistory(bids);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => { fetchData(); }, [resolvedTournamentId]);
+
+  useEffect(() => {
+    if (!lastMessage) return;
+    const { type, data } = lastMessage as { type: string; data: any };
+
+    switch (type) {
+      case 'ROUND_START':
+        setActiveRound(data);
+        setBidHistory([]);
+        break;
+      case 'NEW_BID':
+        setBidHistory((prev) => [data, ...prev]);
+        setActiveRound((prev) => prev ? {
+          ...prev,
+          currentPrice: data.amount,
+          highestBidderTeam: data.teamName
+        } : null);
+        break;
+      case 'ROUND_SOLD':
+      case 'ROUND_UNSOLD':
+        setActiveRound(null);
+        setBidHistory([]);
+        fetchData();
+        break;
+    }
+  }, [lastMessage]);
+
+  if (!resolvedTournamentId) {
+    return (
+      <div className="container">
+        <div className="empty-state">
+          <div className="icon">📺</div>
+          <p>등록된 대회가 없거나 로딩 중입니다. 먼저 대회를 생성해주세요.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const soldPlayers = players.filter(p => p.status === 'SOLD');
+  const availablePlayers = players.filter(p => p.status === 'AVAILABLE' || p.status === 'UNSOLD');
+
+  return (
+    <div className="container">
+      <div className="page-header">
+        <h1>📺 {tournament?.name || '대시보드'}</h1>
+        <p>
+          <span className={`status-dot ${connected ? 'connected' : 'disconnected'}`}></span>
+          {connected ? 'LIVE 시청 중' : '연결 끊김'}
+          {' | '}
+          {soldPlayers.length}명 낙찰 / {availablePlayers.length}명 대기
+        </p>
+      </div>
+
+      {/* Live Auction */}
+      {activeRound && (
+        <div className="auction-stage animate-in" style={{ marginBottom: '32px' }}>
+          <span className="badge badge-auctioning" style={{ fontSize: '0.9rem', marginBottom: '12px', display: 'inline-flex' }}>
+            🔴 LIVE — Round #{activeRound.roundNumber}
+          </span>
+          <h2 style={{ fontSize: '2.2rem', fontWeight: '800', marginBottom: '4px' }}>
+            {activeRound.player.name}
+          </h2>
+          <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', marginBottom: '12px' }}>
+            {activeRound.player.summonerName}
+          </p>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
+            <span className="badge badge-tier" style={{
+              backgroundColor: `${TIER_COLORS[activeRound.player.tier] || '#666'}22`,
+              color: TIER_COLORS[activeRound.player.tier] || '#999',
+              border: `1px solid ${TIER_COLORS[activeRound.player.tier] || '#666'}44`,
+              fontSize: '0.85rem', padding: '4px 14px',
+            }}>
+              {activeRound.player.tier} {['MASTER', 'GRANDMASTER', 'CHALLENGER'].includes(activeRound.player.tier) ? `${activeRound.player.lp || 0}LP` : activeRound.player.rankDivision}
+            </span>
+            <div style={{ display: 'flex', gap: '4px' }}>
+              <span className="badge badge-position" style={{ fontSize: '0.85rem', padding: '4px 14px' }}>
+                {POSITION_LABELS[activeRound.player.mainPosition] || activeRound.player.mainPosition}
+              </span>
+              {activeRound.player.subPosition && activeRound.player.subPosition !== '없음' && activeRound.player.subPosition !== '' && (
+                <span className="badge badge-position" style={{ fontSize: '0.85rem', padding: '4px 14px', opacity: 0.7, borderStyle: 'dashed' }}>
+                  {POSITION_LABELS[activeRound.player.subPosition] || activeRound.player.subPosition}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {activeRound.player.mostChampions && (
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '20px', fontSize: '0.9rem' }}>
+              모스트: {activeRound.player.mostChampions}
+              <span className={activeRound.player.isNewMember ? "badge badge-success" : "badge badge-secondary"} style={{ marginLeft: '8px', fontSize: '0.75rem', padding: '2px 8px' }}>
+                신입: {activeRound.player.isNewMember ? 'O' : 'X'}
+              </span>
+            </p>
+          )}
+
+          <div className="auction-price-label">현재 가격</div>
+          <div className="auction-price flash">{activeRound.currentPrice}P</div>
+          {activeRound.highestBidderTeam && (
+            <p style={{ color: 'var(--text-secondary)', marginTop: '12px', fontSize: '1.1rem' }}>
+              최고 입찰: <strong style={{ color: 'var(--accent-light)', fontSize: '1.2rem' }}>{activeRound.highestBidderTeam}</strong>
+            </p>
+          )}
+
+          {/* Recent bids */}
+          {bidHistory.length > 0 && (
+            <div style={{ maxWidth: '400px', margin: '24px auto 0' }}>
+              <div className="bid-history" style={{ maxHeight: '200px' }}>
+                {bidHistory.slice(0, 5).map((bid, i) => (
+                  <div key={bid.bidId || i} className="bid-item">
+                    <span className="bid-team">{i === 0 && '👑 '}{bid.teamName}</span>
+                    <span className="bid-amount">{bid.amount}P</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Teams Grid */}
+      <div className="grid-4" style={{ marginBottom: '32px' }}>
+        {teams.map((team) => {
+          const positions = ['TOP', 'JUNGLE', 'MID', 'ADC', 'SUPPORT'];
+          return (
+            <div key={team.id} className="card team-panel">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <div>
+                  <h3 style={{ fontSize: '1.05rem' }}>{team.name}</h3>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{team.captainName}</p>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div className="team-points" style={{ fontSize: '1.3rem' }}>{team.remainingPoints}</div>
+                  <div className="team-points-label" style={{ fontSize: '0.65rem' }}>포인트</div>
+                </div>
+              </div>
+              <div className="team-roster">
+                {positions.map((pos) => {
+                  const member = team.members.find(m => m.assignedPosition === pos);
+                  return member ? (
+                    <div key={pos} className="roster-slot">
+                      <span className="position-icon">{POSITION_LABELS[pos]}</span>
+                      <span className="player-name">{member.summonerName}</span>
+                      <span className="badge badge-tier" style={{
+                        backgroundColor: `${TIER_COLORS[member.tier] || '#666'}22`,
+                        color: TIER_COLORS[member.tier] || '#999',
+                        fontSize: '0.6rem', padding: '2px 6px',
+                      }}>
+                        {member.tier}
+                      </span>
+                      <span className="player-price">{member.purchasePrice}P</span>
+                    </div>
+                  ) : (
+                    <div key={pos} className="roster-slot empty">
+                      <span className="position-icon">{POSITION_LABELS[pos]}</span>
+                      <span className="player-name" style={{ color: 'var(--text-muted)' }}>—</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Available Players */}
+      {availablePlayers.length > 0 && (
+        <div className="card">
+          <div className="card-header">
+            <h2>🎮 대기 중인 선수 ({availablePlayers.length}명)</h2>
+          </div>
+          <div className="grid-5">
+            {availablePlayers.map((p) => (
+              <div key={p.id} className="card player-card">
+                <div className="player-info">
+                  <div className="player-avatar" style={{ borderColor: TIER_COLORS[p.tier] || 'var(--border)' }}>
+                    {p.summonerName.charAt(0)}
+                  </div>
+                  <div className="player-details">
+                    <h4 style={{ marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      {p.name}
+                      <span className={p.isNewMember ? "badge badge-success" : "badge badge-secondary"} style={{ fontSize: '0.6rem', padding: '2px 6px' }}>
+                        신입: {p.isNewMember ? 'O' : 'X'}
+                      </span>
+                    </h4>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '8px' }}>{p.summonerName}</div>
+                    <div className="player-meta">
+                      <span className="badge badge-tier" style={{
+                        backgroundColor: `${TIER_COLORS[p.tier] || '#666'}22`,
+                        color: TIER_COLORS[p.tier] || '#999',
+                        fontSize: '0.65rem', padding: '2px 6px',
+                      }}>
+                        {p.tier} {['MASTER', 'GRANDMASTER', 'CHALLENGER'].includes(p.tier) ? `${p.lp || 0}LP` : p.rankDivision}
+                      </span>
+                      <div style={{ display: 'flex', gap: '4px' }}>
+                        <span className="badge badge-position" style={{ fontSize: '0.65rem', padding: '2px 8px' }}>
+                          {POSITION_LABELS[p.mainPosition] || p.mainPosition}
+                        </span>
+                        {p.subPosition && p.subPosition !== '없음' && p.subPosition !== '' && (
+                          <span className="badge badge-position" style={{ fontSize: '0.65rem', padding: '2px 8px', opacity: 0.7, borderStyle: 'dashed' }}>
+                            {POSITION_LABELS[p.subPosition] || p.subPosition}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div className="container"><div className="empty-state"><p>로딩 중...</p></div></div>}>
+      <DashboardContent />
+    </Suspense>
+  );
+}
