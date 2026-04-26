@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { api } from '../../lib/api';
-import { Tournament, TeamResponse, PlayerResponse, POSITION_LABELS, TIER_COLORS } from '../../lib/types';
+import { Tournament, TeamResponse, PlayerResponse, POSITION_LABELS, TIER_COLORS, TIER_LABELS } from '../../lib/types';
 import { Suspense } from 'react';
 
 function AdminContent() {
@@ -14,7 +14,18 @@ function AdminContent() {
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [teams, setTeams] = useState<TeamResponse[]>([]);
   const [players, setPlayers] = useState<PlayerResponse[]>([]);
+  const [auctionHistory, setAuctionHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Admin auth check
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const isAuth = sessionStorage.getItem('admin_auth');
+      if (isAuth !== 'true') {
+        window.location.href = '/';
+      }
+    }
+  }, []);
 
   // Tournament Creation Form
   const [tournamentName, setTournamentName] = useState('');
@@ -36,6 +47,12 @@ function AdminContent() {
   const [playerSubPosition, setPlayerSubPosition] = useState('');
   const [playerChampions, setPlayerChampions] = useState('');
 
+  // Manual Assign form
+  const [showManualAssign, setShowManualAssign] = useState(false);
+  const [manualAssignPlayerId, setManualAssignPlayerId] = useState<number | ''>('');
+  const [manualAssignTeamId, setManualAssignTeamId] = useState<number | ''>('');
+  const [manualAssignPoints, setManualAssignPoints] = useState<number | ''>('');
+
   const [showAddTeam, setShowAddTeam] = useState(false);
   const [showAddPlayer, setShowAddPlayer] = useState(false);
   const [error, setError] = useState('');
@@ -45,6 +62,9 @@ function AdminContent() {
 
   // File upload state
   const [isUploading, setIsUploading] = useState(false);
+
+  // Player search filter
+  const [playerSearchTerm, setPlayerSearchTerm] = useState('');
 
   const fetchData = async () => {
     try {
@@ -65,14 +85,16 @@ function AdminContent() {
         }
       }
       
-      const [t, tm, pl] = await Promise.all([
+      const [t, tm, pl, history] = await Promise.all([
         api.getTournament(tId) as Promise<Tournament>,
         api.getTeams(tId) as Promise<TeamResponse[]>,
         api.getPlayers(tId) as Promise<PlayerResponse[]>,
+        api.getAuctionHistory(tId) as Promise<any[]>,
       ]);
       setTournament(t);
       setTeams(tm);
       setPlayers(pl);
+      setAuctionHistory(history);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -132,6 +154,16 @@ function AdminContent() {
     }
   };
 
+  const handleRollback = async (roundId: number) => {
+    if (!window.confirm('이 경매 라운드를 정말 롤백하시겠습니까?\n사용한 포인트가 복구되고, 선수는 대기 상태로 돌아갑니다.')) return;
+    try {
+      await api.rollbackAuction(roundId);
+      fetchData();
+    } catch (err: any) {
+      setError(`롤백 실패: ${err.message}`);
+    }
+  };
+
   const handleAddPlayer = async () => {
     if (!playerName.trim() || !resolvedTournamentId) return;
     try {
@@ -149,6 +181,42 @@ function AdminContent() {
       fetchData();
     } catch (err: any) {
       setError(err.message);
+    }
+  };
+
+  const handleDeleteAllPlayers = async () => {
+    if (!resolvedTournamentId) return;
+    if (!window.confirm('등록된 모든 선수를 정말 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) return;
+    if (!window.confirm('다시 한번 확인합니다. 모든 선수를 삭제합니까?')) return;
+    try {
+      await api.deleteAllPlayers(resolvedTournamentId);
+      fetchData();
+    } catch (err: any) {
+      setError(`전체 삭제 실패: ${err.message}`);
+    }
+  };
+
+  const handleManualAssign = async () => {
+    if (!resolvedTournamentId || manualAssignPlayerId === '' || manualAssignTeamId === '' || manualAssignPoints === '') {
+      setError('모든 항목을 입력해주세요.');
+      return;
+    }
+    if (!window.confirm('이 선수를 해당 팀으로 수동 낙찰시키겠습니까?')) return;
+    
+    try {
+      await api.manualAssignPlayer(resolvedTournamentId, {
+        playerId: Number(manualAssignPlayerId),
+        teamId: Number(manualAssignTeamId),
+        amount: Number(manualAssignPoints)
+      });
+      setShowManualAssign(false);
+      setManualAssignPlayerId('');
+      setManualAssignTeamId('');
+      setManualAssignPoints('');
+      fetchData();
+      alert('수동 배정이 완료되었습니다.');
+    } catch (err: any) {
+      setError(`수동 배정 실패: ${err.message}`);
     }
   };
 
@@ -195,7 +263,7 @@ function AdminContent() {
               <label>대회명</label>
               <input
                 className="input"
-                placeholder="예: 제1회 자낳대"
+                placeholder="예: 제1회 ExP 경매"
                 value={tournamentName}
                 onChange={(e) => setTournamentName(e.target.value)}
               />
@@ -293,39 +361,66 @@ function AdminContent() {
         ) : (
           <div className="grid-3">
             {teams.map((team) => (
-              <div key={team.id} className="card team-panel" style={{ position: 'relative' }}>
-                <button 
-                  onClick={() => handleDeleteTeam(team.id)} 
-                  style={{ position: 'absolute', top: '12px', right: '12px', background: 'transparent', border: 'none', color: 'var(--danger)', cursor: 'pointer', fontSize: '1rem' }}
-                  title="팀 삭제"
-                >
-                  ✖
-                </button>
-                <h3 style={{ marginBottom: '4px' }}>{team.name}</h3>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '12px' }}>
-                  👤 {team.captainName}
-                </p>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '12px' }}>
-                  <div>
-                    <div className="team-points">{team.remainingPoints}</div>
-                    <div className="team-points-label">잔여 포인트</div>
-                  </div>
-                  <span className="badge badge-position">
-                    {team.filledSlots}/{team.filledSlots + team.remainingSlots}명
-                  </span>
-                </div>
-                <div className="team-roster">
-                  {team.members.map((m) => (
-                    <div key={m.playerId} className="roster-slot">
-                      <span className="position-icon">{POSITION_LABELS[m.assignedPosition] || m.assignedPosition}</span>
-                      <span className="player-name">{m.summonerName}</span>
-                      <span className="player-price">{m.purchasePrice}P</span>
+              <div key={team.id} className="team-card-horizontal" style={{ position: 'relative' }}>
+                <div className="team-card-horizontal-header">
+                  <h3 style={{ fontSize: '1.2rem', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    {team.name} <span style={{fontSize: '0.85rem', color: 'var(--text-muted)'}}>({team.captainName})</span>
+                  </h3>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div className="points" style={{ fontSize: '0.95rem' }}>
+                      잔여: <span style={{color: 'var(--gold)', fontWeight: 800}}>{team.remainingPoints} pt</span>
                     </div>
-                  ))}
+                    <button 
+                      onClick={() => handleDeleteTeam(team.id)} 
+                      style={{ background: 'transparent', border: 'none', color: 'var(--danger)', cursor: 'pointer', fontSize: '1.1rem', display: 'flex', padding: 0 }}
+                      title="팀 삭제"
+                    >
+                      ✖
+                    </button>
+                  </div>
+                </div>
+                <div className="team-card-roster-list" style={{ marginTop: '12px' }}>
+                  {team.members.map((m) => {
+                    const playerRecord = players.find(p => p.id === m.playerId);
+                    const displayName = playerRecord?.name || m.summonerName;
+                    const showSummonerName = displayName !== m.summonerName;
+                    
+                    return (
+                      <div key={m.playerId} className="roster-list-item">
+                        <div className="player-pic">
+                          {m.summonerName?.charAt(0) || '?'}
+                        </div>
+                        <div className="player-info">
+                          <div className="player-name-row">
+                            <span className="player-name">{displayName}</span>
+                            {m.tier && (
+                              <span style={{ fontSize: '0.65rem', color: TIER_COLORS[m.tier] || 'var(--text-muted)', fontWeight: 800, border: `1px solid ${TIER_COLORS[m.tier]}`, borderRadius: '4px', padding: '2px 6px' }}>
+                                {m.tier}
+                              </span>
+                            )}
+                          </div>
+                          {showSummonerName && (
+                            <span className="summoner-name">@{m.summonerName}</span>
+                          )}
+                        </div>
+                        <div className="bid-info">
+                          <span className="bid-label">WINNING BID</span>
+                          <span className="bid-price">{m.purchasePrice} pt</span>
+                        </div>
+                      </div>
+                    );
+                  })}
                   {Array.from({ length: team.remainingSlots }).map((_, i) => (
-                    <div key={`empty-${i}`} className="roster-slot empty">
-                      <span className="position-icon">?</span>
-                      <span className="player-name" style={{ color: 'var(--text-muted)' }}>빈 슬롯</span>
+                    <div key={`empty-${i}`} className="roster-list-item" style={{ opacity: 0.5 }}>
+                      <div className="player-pic" style={{ borderStyle: 'dashed' }}>
+                        ?
+                      </div>
+                      <div className="player-info">
+                        <div className="player-name-row">
+                          <span className="player-name" style={{ color: 'var(--text-muted)' }}>빈 슬롯</span>
+                        </div>
+                      </div>
+                      <div className="bid-info"></div>
                     </div>
                   ))}
                 </div>
@@ -335,11 +430,72 @@ function AdminContent() {
         )}
       </div>
 
+      {/* Auction History / Rollback Section */}
+      <div className="card" style={{ marginBottom: '24px' }}>
+        <div className="card-header">
+          <h2>🕒 경매 기록 및 롤백 ({auctionHistory.length}건)</h2>
+        </div>
+        {auctionHistory.length === 0 ? (
+          <div className="empty-state"><p>최근 종료된 경매가 없습니다.</p></div>
+        ) : (
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>라운드</th>
+                <th>선수 (소환사명)</th>
+                <th>낙찰 팀</th>
+                <th>낙찰가</th>
+                <th>상태</th>
+                <th>작업</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...auctionHistory].reverse().map((round) => (
+                <tr key={round.roundId}>
+                  <td>#{round.roundNumber}</td>
+                  <td>
+                    <div style={{ fontWeight: 600 }}>{round.player.name}</div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{round.player.summonerName}</div>
+                  </td>
+                  <td style={{ fontWeight: 600, color: round.highestBidderTeam ? 'var(--text-primary)' : 'var(--text-muted)' }}>
+                    {round.highestBidderTeam || '-'}
+                  </td>
+                  <td style={{ color: 'var(--gold)', fontWeight: 600 }}>
+                    {round.currentPrice}P
+                  </td>
+                  <td>
+                    <span className={`badge badge-${round.status.toLowerCase()}`}>{round.status}</span>
+                  </td>
+                  <td>
+                    <button 
+                      className="btn btn-sm btn-outline danger" 
+                      onClick={() => handleRollback(round.roundId)}
+                    >
+                      ↩ 롤백
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
       {/* Players Section */}
       <div className="card" style={{ marginBottom: '24px' }}>
         <div className="card-header">
           <h2>🎮 선수 관리 ({players.length}명)</h2>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <input
+              type="text"
+              className="input"
+              placeholder="이름/소환사명 검색..."
+              value={playerSearchTerm}
+              onChange={(e) => setPlayerSearchTerm(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
+              style={{ padding: '6px 12px', width: '200px' }}
+            />
+            <button type="button" className="btn btn-warning btn-sm" onClick={() => setShowManualAssign(true)}>⚡ 수동 배정</button>
             <label className={`btn btn-secondary btn-sm ${isUploading ? 'loading' : ''}`} style={{ cursor: 'pointer', margin: 0 }}>
               {isUploading ? '업로드 중...' : '엑셀 업로드'}
               <input 
@@ -350,7 +506,10 @@ function AdminContent() {
                 disabled={isUploading}
               />
             </label>
-            <button className="btn btn-primary btn-sm" onClick={() => setShowAddPlayer(true)}>+ 선수 추가</button>
+            <button type="button" className="btn btn-primary btn-sm" onClick={() => setShowAddPlayer(true)}>+ 선수 추가</button>
+            {players.length > 0 && (
+              <button type="button" className="btn btn-danger btn-sm" onClick={handleDeleteAllPlayers}>🗑️ 전부 삭제</button>
+            )}
           </div>
         </div>
 
@@ -370,7 +529,7 @@ function AdminContent() {
               </tr>
             </thead>
             <tbody>
-              {players.map((p) => (
+              {players.filter(p => playerSearchTerm === '' || p.name.includes(playerSearchTerm) || p.summonerName.includes(playerSearchTerm)).map((p) => (
                 <tr key={p.id}>
                   <td>
                     <div style={{ fontWeight: 600 }}>{p.name}</div>
@@ -382,7 +541,7 @@ function AdminContent() {
                       color: TIER_COLORS[p.tier] || '#999',
                       border: `1px solid ${TIER_COLORS[p.tier] || '#666'}44`
                     }}>
-                      {p.tier} {['MASTER', 'GRANDMASTER', 'CHALLENGER'].includes(p.tier) ? `${p.lp || 0}LP` : p.rankDivision}
+                      {TIER_LABELS[p.tier] || p.tier} {['MASTER', 'GRANDMASTER', 'CHALLENGER', 'IMMORTAL', 'RADIANT'].includes(p.tier) ? `${p.lp || 0}LP` : p.rankDivision}
                     </span>
                   </td>
                   <td>
@@ -397,9 +556,6 @@ function AdminContent() {
                   </td>
                   <td style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
                     {p.mostChampions || '-'}
-                    <span className={p.isNewMember ? "badge badge-success" : "badge badge-secondary"} style={{ marginLeft: '8px', fontSize: '0.65rem', padding: '2px 6px' }}>
-                      신입: {p.isNewMember ? 'O' : 'X'}
-                    </span>
                   </td>
                   <td>
                     <span className={`badge badge-${p.status.toLowerCase()}`}>{p.status}</span>
@@ -486,6 +642,41 @@ function AdminContent() {
             <div className="modal-actions">
               <button className="btn btn-outline" onClick={() => setShowAddPlayer(false)}>취소</button>
               <button className="btn btn-primary" onClick={handleAddPlayer}>추가</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Manual Assign Modal */}
+      {showManualAssign && (
+        <div className="modal-overlay" onClick={() => setShowManualAssign(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h2>⚡ 선수 수동 배정</h2>
+            <div className="input-group">
+              <label>대상 선수</label>
+              <select className="input" value={manualAssignPlayerId} onChange={(e) => setManualAssignPlayerId(Number(e.target.value))}>
+                <option value="">선수 선택 (대기/유찰 상태만)</option>
+                {players.filter(p => p.status === 'AVAILABLE' || p.status === 'UNSOLD').map(p => (
+                  <option key={p.id} value={p.id}>{p.summonerName} ({p.name}) - {POSITION_LABELS[p.mainPosition] || p.mainPosition}</option>
+                ))}
+              </select>
+            </div>
+            <div className="input-group">
+              <label>대상 팀</label>
+              <select className="input" value={manualAssignTeamId} onChange={(e) => setManualAssignTeamId(Number(e.target.value))}>
+                <option value="">팀 선택</option>
+                {teams.filter(t => t.remainingSlots > 0).map(t => (
+                  <option key={t.id} value={t.id}>{t.name} (잔여: {t.remainingPoints}P, 슬롯: {t.remainingSlots})</option>
+                ))}
+              </select>
+            </div>
+            <div className="input-group">
+              <label>배정 포인트</label>
+              <input type="number" className="input" placeholder="예: 50" value={manualAssignPoints} onChange={(e) => setManualAssignPoints(Number(e.target.value))} />
+            </div>
+            <div className="modal-actions">
+              <button className="btn btn-outline" onClick={() => setShowManualAssign(false)}>취소</button>
+              <button className="btn btn-warning" onClick={handleManualAssign}>강제 배정</button>
             </div>
           </div>
         </div>

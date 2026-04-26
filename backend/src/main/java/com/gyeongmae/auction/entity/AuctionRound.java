@@ -46,6 +46,10 @@ public class AuctionRound {
     private LocalDateTime startedAt;
 
     private LocalDateTime endedAt;
+    
+    @Column(name = "is_re_auction", nullable = false, columnDefinition = "boolean default false")
+    @Builder.Default
+    private boolean isReAuction = false;
 
     @OneToMany(mappedBy = "auctionRound", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

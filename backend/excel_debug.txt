@@ -1,0 +1,20 @@
+Debug Row -> name:엄민식 tierIdx:5 tierVal:
+Debug Row -> name:김동은 tierIdx:5 tierVal:
+Debug Row -> name:이현우 tierIdx:5 tierVal:다이아2
+Debug Row -> name:서준혁 tierIdx:5 tierVal:
+Debug Row -> name:신지섭 tierIdx:5 tierVal:
+Debug Row -> name:김예현 tierIdx:5 tierVal:
+Debug Row -> name:이서연 tierIdx:5 tierVal:플래 1
+Debug Row -> name:정민욱 tierIdx:5 tierVal:
+Debug Row -> name:김태현 tierIdx:5 tierVal:
+Debug Row -> name:이단얼 tierIdx:5 tierVal:다이아 3
+Debug Row -> name:김기윤 tierIdx:5 tierVal:
+Debug Row -> name:유준석 tierIdx:5 tierVal:
+Debug Row -> name:김유민 tierIdx:5 tierVal:
+Debug Row -> name:김준우 tierIdx:5 tierVal:다이아 3
+Debug Row -> name:김강민 tierIdx:5 tierVal:랭크 안돌리고 친구들과 간간히 5인큐만함
+Debug Row -> name:이승현 tierIdx:5 tierVal:
+Debug Row -> name:이서연 tierIdx:5 tierVal:
+Debug Row -> name:박재규 tierIdx:5 tierVal:실버 3
+Debug Row -> name:이강민 tierIdx:5 tierVal:언랭크
+Debug Row -> name:임재한 tierIdx:5 tierVal:골드 1

@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: auction-db
+    environment:
+      POSTGRES_USER: sa
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: auctiondb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sa -d auctiondb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    image: asia-northeast3-docker.pkg.dev/gyeongmae-program/lost-auction/auction-backend:latest
+    container_name: auction-backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/auctiondb
+      - SPRING_DATASOURCE_USERNAME=sa
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.PostgreSQLDialect
+      - CORS_ALLOWED_ORIGINS=*
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  frontend:
+    image: asia-northeast3-docker.pkg.dev/gyeongmae-program/auction-repo/frontend:latest
+    container_name: auction-frontend
+    depends_on:
+      - backend
+    environment:
+      - TZ=Asia/Seoul
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

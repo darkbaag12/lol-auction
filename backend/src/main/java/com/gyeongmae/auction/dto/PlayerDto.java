@@ -16,6 +16,8 @@ public class PlayerDto {
         private String mostChampions;
         private Boolean isNewMember;
         private String profileIconUrl;
+        private String resolution;
+        private Integer startingScore;
     }
 
     @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
@@ -35,5 +37,7 @@ public class PlayerDto {
         private String teamName;
         private Integer soldPrice;
         private String profileIconUrl;
+        private String resolution;
+        private Integer startingScore;
     }
 }

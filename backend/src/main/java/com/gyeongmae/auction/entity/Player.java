@@ -42,6 +42,11 @@ public class Player {
     @Builder.Default
     private Boolean isNewMember = false; // 신입회원 여부
 
+    private Integer startingScore; // 경매 시작 지정 점수 (엑셀 파싱)
+
+    @Column(columnDefinition = "TEXT")
+    private String resolution; // 각오 한마디
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default

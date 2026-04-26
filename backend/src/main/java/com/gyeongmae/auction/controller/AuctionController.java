@@ -108,6 +108,12 @@ public class AuctionController {
         return ResponseEntity.ok(auctionService.getPlayers(tournamentId));
     }
 
+    @DeleteMapping("/tournaments/{tournamentId}/players")
+    public ResponseEntity<Void> deleteAllPlayers(@PathVariable Long tournamentId) {
+        auctionService.deleteAllPlayers(tournamentId);
+        return ResponseEntity.noContent().build();
+    }
+
     // ==================== Auction ====================
 
     @PostMapping("/tournaments/{tournamentId}/auction/start")
@@ -119,7 +125,7 @@ public class AuctionController {
 
     @PostMapping("/auction/close")
     public ResponseEntity<AuctionDto.RoundResponse> closeAuction(@RequestBody AuctionDto.CloseRequest request) {
-        return ResponseEntity.ok(auctionService.closeAuctionRound(request.getRoundId()));
+        return ResponseEntity.ok(auctionService.closeAuctionRound(request));
     }
 
     @PostMapping("/auction/pass")
@@ -132,9 +138,33 @@ public class AuctionController {
         return ResponseEntity.ok(auctionService.getBidHistory(roundId));
     }
 
+    @DeleteMapping("/auction/{roundId}/bids/latest")
+    public ResponseEntity<Void> rollbackLastBid(@PathVariable Long roundId) {
+        auctionService.rollbackLastBid(roundId);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/tournaments/{tournamentId}/auction/active")
     public ResponseEntity<AuctionDto.RoundResponse> getActiveRound(@PathVariable Long tournamentId) {
         AuctionDto.RoundResponse response = auctionService.getActiveRound(tournamentId);
         return response != null ? ResponseEntity.ok(response) : ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/tournaments/{tournamentId}/auction/history")
+    public ResponseEntity<List<AuctionDto.RoundResponse>> getAuctionHistory(@PathVariable Long tournamentId) {
+        return ResponseEntity.ok(auctionService.getAuctionHistory(tournamentId));
+    }
+
+    @PostMapping("/tournaments/{tournamentId}/players/manual-assign")
+    public ResponseEntity<AuctionDto.RoundResponse> manualAssignPlayer(
+            @PathVariable Long tournamentId,
+            @RequestBody AuctionDto.ManualAssignRequest request) {
+        return ResponseEntity.ok(auctionService.manualAssignPlayer(tournamentId, request));
+    }
+
+    @DeleteMapping("/auction/{roundId}/rollback")
+    public ResponseEntity<Void> rollbackAuctionRound(@PathVariable Long roundId) {
+        auctionService.rollbackAuctionRound(roundId);
+        return ResponseEntity.ok().build();
     }
 }

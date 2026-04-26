@@ -230,7 +230,7 @@ function DashboardContent() {
               <div key={p.id} className="card player-card">
                 <div className="player-info">
                   <div className="player-avatar" style={{ borderColor: TIER_COLORS[p.tier] || 'var(--border)' }}>
-                    {p.summonerName.charAt(0)}
+                    {p.summonerName?.charAt(0) || '?'}
                   </div>
                   <div className="player-details">
                     <h4 style={{ marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>

@@ -11,4 +11,5 @@ import java.util.List;
 public interface PlayerRepository extends JpaRepository<Player, Long> {
     List<Player> findByTournamentId(Long tournamentId);
     List<Player> findByTournamentIdAndStatus(Long tournamentId, PlayerStatus status);
+    void deleteByTournamentId(Long tournamentId);
 }

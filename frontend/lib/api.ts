@@ -9,7 +9,10 @@ const getApiBase = () => {
 async function request<T>(url: string, options?: RequestInit): Promise<T> {
   const apiBase = getApiBase();
   const res = await fetch(`${apiBase}${url}`, {
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
     ...options,
   });
   if (!res.ok) {
@@ -58,8 +61,14 @@ export const api = {
   createPlayer: (tournamentId: number, data: unknown) =>
     request(`/tournaments/${tournamentId}/players`, { method: 'POST', body: JSON.stringify(data) }),
 
+  manualAssignPlayer: (tournamentId: number, data: { playerId: number, teamId: number, amount: number }) =>
+    request(`/tournaments/${tournamentId}/players/manual-assign`, { method: 'POST', body: JSON.stringify(data) }),
+
   createPlayersBulk: (tournamentId: number, data: unknown[]) =>
     request(`/tournaments/${tournamentId}/players/bulk`, { method: 'POST', body: JSON.stringify(data) }),
+
+  deleteAllPlayers: (tournamentId: number) =>
+    request(`/tournaments/${tournamentId}/players`, { method: 'DELETE' }),
 
   importPlayersFromExcel: async (tournamentId: number, file: File) => {
     const formData = new FormData();
@@ -84,8 +93,8 @@ export const api = {
   startAuction: (tournamentId: number, data: { playerId: number; startingPrice: number }) =>
     request(`/tournaments/${tournamentId}/auction/start`, { method: 'POST', body: JSON.stringify(data) }),
 
-  closeAuction: (roundId: number) =>
-    request('/auction/close', { method: 'POST', body: JSON.stringify({ roundId }) }),
+  closeAuction: (roundId: number, winningTeamId?: number) =>
+    request('/auction/close', { method: 'POST', body: JSON.stringify({ roundId, winningTeamId }) }),
 
   passAuction: (roundId: number) =>
     request('/auction/pass', { method: 'POST', body: JSON.stringify({ roundId }) }),
@@ -95,4 +104,13 @@ export const api = {
 
   getBidHistory: (roundId: number) =>
     request(`/auction/${roundId}/bids`),
+
+  getAuctionHistory: (tournamentId: number) =>
+    request(`/tournaments/${tournamentId}/auction/history`),
+
+  rollbackAuction: (roundId: number) =>
+    request(`/auction/${roundId}/rollback`, { method: 'DELETE' }),
+
+  rollbackLastBid: (roundId: number) =>
+    request(`/auction/${roundId}/bids/latest`, { method: 'DELETE' }),
 };

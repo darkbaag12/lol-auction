@@ -43,6 +43,8 @@ export interface PlayerResponse {
   teamName: string | null;
   soldPrice: number | null;
   profileIconUrl: string | null;
+  resolution?: string;
+  startingScore?: number;
 }
 
 export interface AuctionRound {
@@ -50,6 +52,7 @@ export interface AuctionRound {
   roundNumber: number;
   player: PlayerResponse;
   startingPrice: number;
+  maxPrice?: number | null;
   currentPrice: number;
   highestBidderTeam: string | null;
   status: string;
@@ -57,9 +60,11 @@ export interface AuctionRound {
 
 export interface BidResponse {
   bidId: number;
+  teamId: number;
   teamName: string;
   amount: number;
   timestamp: string;
+  teamsPoints?: Record<string, number>;
 }
 
 export const POSITION_LABELS: Record<string, string> = {
@@ -68,6 +73,11 @@ export const POSITION_LABELS: Record<string, string> = {
   MID: '미드',
   ADC: '원딜',
   SUPPORT: '서포터',
+  DUELIST: '타격대',
+  INITIATOR: '척후대',
+  CONTROLLER: '전략가',
+  SENTINEL: '감시자',
+  FLEX: '올라운더',
 };
 
 export const TIER_COLORS: Record<string, string> = {
@@ -78,7 +88,26 @@ export const TIER_COLORS: Record<string, string> = {
   PLATINUM: '#4e9996',
   EMERALD: '#009e6b',
   DIAMOND: '#576cce',
+  ASCENDANT: '#2b846e',
+  IMMORTAL: '#b83d5a',
+  RADIANT: '#fff9c4',
   MASTER: '#9d48e0',
   GRANDMASTER: '#e04848',
   CHALLENGER: '#f4c874',
+};
+
+export const TIER_LABELS: Record<string, string> = {
+  IRON: '아이언',
+  BRONZE: '브론즈',
+  SILVER: '실버',
+  GOLD: '골드',
+  PLATINUM: '플래티넘',
+  EMERALD: '에메랄드',
+  DIAMOND: '다이아몬드',
+  ASCENDANT: '초월자',
+  IMMORTAL: '불멸',
+  RADIANT: '레디언트',
+  MASTER: '마스터',
+  GRANDMASTER: '그랜드마스터',
+  CHALLENGER: '챌린저',
 };

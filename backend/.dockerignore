@@ -1,0 +1,6 @@
+.gradle
+.idea
+build/
+bin/
+test_output.txt
+data/

@@ -52,6 +52,7 @@ export default function HomePage() {
 
   const handleAdminSubmit = () => {
     if (adminPassword === ADMIN_PASSWORD) {
+      sessionStorage.setItem('admin_auth', 'true');
       if (!selectedTournamentId || selectedTournamentId === -1) {
         window.location.href = '/admin?new=true';
       } else {
@@ -87,13 +88,13 @@ export default function HomePage() {
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-primary)' }}>
       <div className="card" style={{ width: '100%', maxWidth: '420px', textAlign: 'center', padding: '48px 40px' }}>
         <div
-          style={{ fontSize: '3.5rem', marginBottom: '16px', cursor: 'pointer', userSelect: 'none' }}
+          style={{ marginBottom: '16px', cursor: 'pointer', userSelect: 'none', display: 'flex', justifyContent: 'center' }}
           onClick={() => setShowAdminModal(true)}
           title="관리자 입장"
         >
-          🎭
+          <img src="/exp-logo.png" alt="ExP Logo" style={{ height: '80px', width: 'auto' }} />
         </div>
-        <h2 style={{ fontSize: '1.6rem', fontWeight: '800', marginBottom: '8px' }}>경매장 입장</h2>
+        <h2 style={{ fontSize: '1.6rem', fontWeight: '800', marginBottom: '8px' }}>ExP 팀 경매 프로그램</h2>
         <p style={{ color: 'var(--text-secondary)', marginBottom: '32px', fontSize: '0.95rem' }}>
           대회를 선택하고 팀장으로 입장하세요.
         </p>

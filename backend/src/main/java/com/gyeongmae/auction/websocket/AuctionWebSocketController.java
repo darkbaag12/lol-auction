@@ -24,4 +24,13 @@ public class AuctionWebSocketController {
             // Error is broadcast via the service layer or handled client-side
         }
     }
+
+    @MessageMapping("/chat")
+    public void handleChat(com.gyeongmae.auction.dto.ChatDto.MessageRequest request) {
+        try {
+            auctionService.handleChatMessage(request);
+        } catch (Exception e) {
+            log.error("Chat error: {}", e.getMessage());
+        }
+    }
 }

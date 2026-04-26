@@ -14,20 +14,20 @@
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
 
-  --accent: #6366f1;
-  --accent-light: #818cf8;
-  --accent-dark: #4f46e5;
+  --accent: #6abf98;
+  --accent-light: #8eaebd;
+  --accent-dark: #674ea7;
 
-  --success: #22c55e;
+  --success: #6abf98;
   --warning: #f59e0b;
   --danger: #ef4444;
-  --info: #3b82f6;
+  --info: #8eaebd;
 
-  --gold: #c89b3c;
-  --gold-gradient: linear-gradient(135deg, #c89b3c, #f4d47c, #c89b3c);
+  --gold: #6abf98;
+  --gold-gradient: linear-gradient(135deg, #6abf98, #8eaebd, #674ea7);
 
   /* Gradients */
-  --gradient-primary: linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7);
+  --gradient-primary: linear-gradient(135deg, #6abf98, #674ea7, #8eaebd);
   --gradient-bg: linear-gradient(180deg, #0a0e17 0%, #111827 50%, #0a0e17 100%);
   --gradient-card: linear-gradient(145deg, rgba(26, 34, 53, 0.8), rgba(17, 24, 39, 0.9));
 
@@ -478,7 +478,7 @@ select.input {
 }
 
 .roster-slot .position-icon {
-  width: 28px;
+  width: 44px;
   text-align: center;
   font-weight: 700;
   font-size: 0.75rem;
@@ -782,8 +782,9 @@ select.input {
 
 .auction-layout-wrapper {
   display: grid;
-  grid-template-columns: 320px 1fr 280px;
-  min-height: 100vh;
+  grid-template-columns: 380px 1fr 380px;
+  height: 100vh;
+  overflow: hidden;
   background: var(--bg-primary);
   color: var(--text-primary);
 }
@@ -796,14 +797,27 @@ select.input {
   padding: 16px;
   overflow-y: auto;
   gap: 16px;
+  min-height: 0;
+}
+
+.auction-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+.auction-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.auction-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.2);
+  border-radius: 4px;
 }
 
 .auction-main {
   display: flex;
   flex-direction: column;
-  padding: 24px 32px;
+  padding: 16px 24px 8vh 24px;
   overflow-y: auto;
   background: var(--gradient-bg);
+  min-height: 0;
 }
 
 .team-card-horizontal {
@@ -835,86 +849,122 @@ select.input {
   color: var(--text-primary);
 }
 
-.team-card-roster-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 4px;
-}
-
-.roster-cell {
-  flex: 1;
+.team-card-roster-list {
   display: flex;
   flex-direction: column;
+  gap: 8px;
+}
+
+.roster-list-item {
+  display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 6px 2px;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 4px;
-  text-align: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 10px 12px;
+  gap: 12px;
 }
 
-.roster-cell .pos {
-  font-size: 0.6rem;
-  color: var(--text-muted);
-  font-weight: 700;
-}
-
-.roster-cell .player-pic {
-  width: 32px;
-  height: 32px;
-  background: var(--bg-secondary);
-  border-radius: 4px;
-  border: 1px solid var(--border);
+.roster-list-item .player-pic {
+  width: 44px;
+  height: 44px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.7rem;
+  font-size: 1rem;
   overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+  flex-shrink: 0;
 }
 
-.roster-cell .player-name {
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: var(--text-secondary);
+.roster-list-item .player-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.roster-list-item .player-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.roster-list-item .player-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 100%;
+}
+
+.roster-list-item .summoner-name {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.roster-list-item .bid-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  text-align: right;
+}
+
+.roster-list-item .bid-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.roster-list-item .bid-price {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--gold);
 }
 
 .auction-target-profile {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 8px;
 }
 
 .auction-target-profile .avatar-large {
-  width: 120px;
-  height: 120px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   background: var(--bg-card);
   border: 2px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.5rem;
-  margin-bottom: 12px;
+  font-size: 2rem;
+  margin-bottom: 8px;
   overflow: hidden;
 }
 
 .terminal-log-window {
   flex: 1;
+  min-height: 200px;
   background: #050505;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 16px;
   font-family: 'Consolas', 'Courier New', monospace;
-  font-size: 0.85rem;
+  font-size: 1.1rem;
   color: #a3a3a3;
   overflow-y: auto;
-  min-height: 250px;
-  margin-bottom: 24px;
+  margin-bottom: 12px;
   display: flex;
   flex-direction: column;
 }
@@ -925,13 +975,13 @@ select.input {
   margin-bottom: 8px;
   color: #fff;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 1.1rem;
   font-family: 'Inter', sans-serif;
 }
 
 .log-line {
-  margin-bottom: 4px;
-  line-height: 1.4;
+  margin-bottom: 8px;
+  line-height: 1.5;
 }
 
 .log-line.success {
@@ -1028,9 +1078,9 @@ select.input {
   display: flex;
   justify-content: center;
   gap: 12px;
-  margin-top: 16px;
+  margin-top: 12px;
   border-top: 1px solid var(--border);
-  padding-top: 16px;
+  padding-top: 12px;
 }
 
 .btn-host {
@@ -1102,6 +1152,7 @@ select.input {
   display: flex;
   flex-direction: column;
   overflow-y: hidden;
+  min-height: 0;
 }
 
 .right-sidebar-section {

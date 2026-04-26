@@ -13,4 +13,5 @@ public interface AuctionRoundRepository extends JpaRepository<AuctionRound, Long
     List<AuctionRound> findByTournamentIdOrderByRoundNumberAsc(Long tournamentId);
     Optional<AuctionRound> findByTournamentIdAndStatus(Long tournamentId, AuctionRoundStatus status);
     int countByTournamentId(Long tournamentId);
+    List<AuctionRound> findByWinningTeamId(Long teamId);
 }
