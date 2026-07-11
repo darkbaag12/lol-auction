@@ -454,6 +454,11 @@ function AuctionContent() {
                 <span className="badge badge-position" style={{ padding: '4px 12px', fontSize: '0.85rem' }}>
                   {POSITION_LABELS[activeRound.player.mainPosition]}
                 </span>
+                {activeRound.player.mostChampions && activeRound.player.mostChampions !== '없음' && activeRound.player.mostChampions !== '-' && (
+                  <span className="badge" style={{ padding: '4px 12px', fontSize: '0.85rem', border: '1px solid var(--border)', background: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}>
+                    주 캐릭터: {activeRound.player.mostChampions}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -626,10 +631,10 @@ function AuctionContent() {
         </div>
         <div className="right-sidebar-section">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '8px' }}>
-            <h4 style={{ margin: 0, color: 'var(--text-primary)' }}>대기 명단 (다이아 이상) <span style={{fontSize:'0.8rem', color:'var(--text-muted)'}}>{freshHigh.length}명</span></h4>
+            <h4 style={{ margin: 0, color: 'var(--text-primary)' }}>대기 명단 <span style={{fontSize:'0.8rem', color:'var(--text-muted)'}}>{freshPlayers.length}명</span></h4>
           </div>
-          <div className="vertical-player-list" style={{ minHeight: '100px', height: '30vh', overflowY: 'auto', marginTop: '12px' }}>
-            {freshHigh.map((p) => (
+          <div className="vertical-player-list" style={{ minHeight: '100px', height: '40vh', overflowY: 'auto', marginTop: '12px' }}>
+            {freshPlayers.map((p) => (
               <div key={p.id} className="player-list-item">
                 <div className="player-list-avatar" style={{ borderColor: TIER_COLORS[p.tier] || 'var(--border)' }}>{p.summonerName?.charAt(0) || '?'}</div>
                 <div className="player-list-info" style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
@@ -648,42 +653,16 @@ function AuctionContent() {
                 </div>
               </div>
             ))}
-            {freshHigh.length === 0 && <div style={{ padding: '16px', color: 'var(--text-muted)', textAlign: 'center' }}>없음</div>}
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '8px', marginTop: '16px' }}>
-            <h4 style={{ margin: 0, color: 'var(--text-primary)' }}>대기 명단 (다이아 미만) <span style={{fontSize:'0.8rem', color:'var(--text-muted)'}}>{freshLow.length}명</span></h4>
-          </div>
-          <div className="vertical-player-list" style={{ minHeight: '100px', height: '30vh', overflowY: 'auto', marginTop: '12px' }}>
-            {freshLow.map((p) => (
-              <div key={p.id} className="player-list-item">
-                <div className="player-list-avatar" style={{ borderColor: TIER_COLORS[p.tier] || 'var(--border)' }}>{p.summonerName?.charAt(0) || '?'}</div>
-                <div className="player-list-info" style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                    <span className="player-list-name">{p.name} {p.isNewMember && <span style={{ marginLeft: '4px', fontSize: '0.7rem', color: 'var(--success)', border: '1px solid var(--success)', padding: '0 4px', borderRadius: '4px' }}>신입</span>}</span>
-                    {p.name !== p.summonerName && <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{p.summonerName}</span>}
-                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: TIER_COLORS[p.tier] || 'var(--text-muted)' }}>{getFormattedTier(p.tier, p.rankDivision, p.lp)}</span>
-                  </div>
-                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                    <span className="badge-position" style={{ padding: '2px 6px', fontSize: '0.7rem', borderRadius: '4px' }}>주: {POSITION_LABELS[p.mainPosition] || p.mainPosition || '-'}</span>
-                    <span className="badge-position" style={{ padding: '2px 6px', fontSize: '0.7rem', borderRadius: '4px', opacity: 0.7 }}>부: {POSITION_LABELS[p.subPosition] || p.subPosition || '-'}</span>
-                    {p.startingScore != null && (
-                      <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--gold)', marginLeft: '4px' }}>{p.startingScore} pt</span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-            {freshLow.length === 0 && <div style={{ padding: '16px', color: 'var(--text-muted)', textAlign: 'center' }}>없음</div>}
+            {freshPlayers.length === 0 && <div style={{ padding: '16px', color: 'var(--text-muted)', textAlign: 'center' }}>없음</div>}
           </div>
         </div>
 
         <div className="right-sidebar-section" style={{ marginTop: '24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '8px' }}>
-            <h4 style={{ margin: 0, color: 'var(--text-primary)' }}>유찰 명단 (다이아 이상) <span style={{fontSize:'0.8rem', color:'var(--text-muted)'}}>{unsoldHigh.length}명</span></h4>
+            <h4 style={{ margin: 0, color: 'var(--text-primary)' }}>유찰 명단 <span style={{fontSize:'0.8rem', color:'var(--text-muted)'}}>{unsoldPlayers.length}명</span></h4>
           </div>
           <div className="vertical-player-list" style={{ minHeight: '100px', height: '30vh', overflowY: 'auto', marginTop: '12px' }}>
-            {unsoldHigh.map((p) => (
+            {unsoldPlayers.map((p) => (
               <div key={p.id} className="player-list-item" style={{ opacity: 0.8 }}>
                 <div className="player-list-avatar" style={{ borderColor: TIER_COLORS[p.tier] || 'var(--border)' }}>{p.summonerName?.charAt(0) || '?'}</div>
                 <div className="player-list-info" style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
@@ -698,29 +677,7 @@ function AuctionContent() {
                 </div>
               </div>
             ))}
-            {unsoldHigh.length === 0 && <div style={{ padding: '16px', color: 'var(--text-muted)', textAlign: 'center' }}>없음</div>}
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '8px', marginTop: '16px' }}>
-            <h4 style={{ margin: 0, color: 'var(--text-primary)' }}>유찰 명단 (다이아 미만) <span style={{fontSize:'0.8rem', color:'var(--text-muted)'}}>{unsoldLow.length}명</span></h4>
-          </div>
-          <div className="vertical-player-list" style={{ minHeight: '100px', height: '30vh', overflowY: 'auto', marginTop: '12px' }}>
-            {unsoldLow.map((p) => (
-              <div key={p.id} className="player-list-item" style={{ opacity: 0.8 }}>
-                <div className="player-list-avatar" style={{ borderColor: TIER_COLORS[p.tier] || 'var(--border)' }}>{p.summonerName?.charAt(0) || '?'}</div>
-                <div className="player-list-info" style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                    <span className="player-list-name">{p.name}</span>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: TIER_COLORS[p.tier] || 'var(--text-muted)' }}>{getFormattedTier(p.tier, p.rankDivision, p.lp)}</span>
-                  </div>
-                  <div style={{ display: 'flex', gap: '6px' }}>
-                    <span className="badge-position" style={{ padding: '2px 6px', fontSize: '0.7rem', borderRadius: '4px', filter: 'grayscale(50%)' }}>주: {POSITION_LABELS[p.mainPosition] || p.mainPosition || '-'}</span>
-                    <span className="badge-position" style={{ padding: '2px 6px', fontSize: '0.7rem', borderRadius: '4px', opacity: 0.7, filter: 'grayscale(50%)' }}>부: {POSITION_LABELS[p.subPosition] || p.subPosition || '-'}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-            {unsoldLow.length === 0 && <div style={{ padding: '16px', color: 'var(--text-muted)', textAlign: 'center' }}>없음</div>}
+            {unsoldPlayers.length === 0 && <div style={{ padding: '16px', color: 'var(--text-muted)', textAlign: 'center' }}>없음</div>}
           </div>
         </div>
       </div>

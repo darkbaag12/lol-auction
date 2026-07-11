@@ -360,6 +360,12 @@ public class AuctionService {
         if (tierStr == null || tierStr.length() < 1) return "IRON";
         
         String upperTier = tierStr.toUpperCase().trim();
+
+        // 숫자로만 되어있는 경우 숫자 그대로 반환
+        if (upperTier.matches("\\d+")) {
+            return upperTier;
+        }
+
         // 한글 매핑 처리
         if (upperTier.contains("아이언") || upperTier.startsWith("아")) return "IRON";
         if (upperTier.contains("브론즈") || upperTier.startsWith("브")) return "BRONZE";
@@ -399,6 +405,7 @@ public class AuctionService {
         
         String upperTier = tierStr.toUpperCase().trim();
         if (upperTier.contains("언랭") || upperTier.contains("UNRANK")) return "";
+        if (upperTier.matches("\\d+")) return "";
 
         // 마스터, 불멸, 레디언트 이상은 디비전이 없음
         if (upperTier.contains("마스터") || upperTier.contains("그마") || upperTier.contains("챌") || 
@@ -424,6 +431,7 @@ public class AuctionService {
 
     private int extractLp(String tierStr) {
         if (tierStr == null || tierStr.isEmpty()) return 0;
+        if (tierStr.trim().matches("\\d+")) return 0;
         
         // M, GM, C 등 마스터 이상 티어인 경우 점수 추출
         String upper = tierStr.toUpperCase();
@@ -564,7 +572,7 @@ public class AuctionService {
 
         // Validation 2: Higher than current highest or tied at maxPrice
         int currentHighest = round.getCurrentHighestBid();
-        Integer maxPrice = round.isReAuction() ? null : round.getStartingPrice() + 20;
+        Integer maxPrice = round.isReAuction() ? null : round.getStartingPrice() + 10;
 
         if (maxPrice != null && request.getAmount() > maxPrice) {
             throw new IllegalArgumentException("상한가(" + maxPrice + "P)를 초과하여 입찰할 수 없습니다.");
@@ -984,7 +992,7 @@ public class AuctionService {
         Bid highestBid = r.getBids() != null
                 ? r.getBids().stream().reduce((a, b) -> a.getBidAmount() >= b.getBidAmount() ? a : b).orElse(null)
                 : null;
-        Integer maxPrice = r.isReAuction() ? null : r.getStartingPrice() + 20;
+        Integer maxPrice = r.isReAuction() ? null : r.getStartingPrice() + 10;
 
         return AuctionDto.RoundResponse.builder()
                 .roundId(r.getId())
