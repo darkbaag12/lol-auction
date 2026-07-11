@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shared Files - Decentralized FS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .page-header {
+            margin-bottom: 24px;
+        }
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .tabs {
+            display: flex;
+            gap: 24px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 24px;
+        }
+        .tab {
+            padding: 12px 0;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+        }
+        .tab.active {
+            color: var(--accent-blue);
+            border-bottom-color: var(--accent-blue);
+        }
+        .shared-container {
+            padding: 40px;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        .user-address-badge {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-family: monospace;
+            font-size: 13px;
+        }
+        .action-link {
+            color: var(--danger);
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .action-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon"><i class="fa-solid fa-cubes-stacked"></i></div>
+                <h2>NexusFS</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="explorer.html" class="nav-item"><i class="fa-solid fa-folder-open"></i> File Explorer</a>
+                <a href="shared.html" class="nav-item active"><i class="fa-solid fa-share-nodes"></i> Shared Files</a>
+                <a href="wallet.html" class="nav-item"><i class="fa-solid fa-wallet"></i> Wallet & Tx</a>
+                <a href="nodes.html" class="nav-item"><i class="fa-solid fa-network-wired"></i> Node Status</a>
+                <a href="settings.html" class="nav-item"><i class="fa-solid fa-gear"></i> Settings</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="storage-mini">
+                    <p>Storage (28%)</p>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: 28%;"></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="search-bar">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" placeholder="Search shared files...">
+                </div>
+                <div class="header-actions">
+                    <div class="network-status">
+                        <span class="status-dot"></span>
+                        Mainnet - Connected
+                    </div>
+                    <button class="wallet-btn">
+                        <i class="fa-brands fa-ethereum"></i> 0x71C...3A92
+                    </button>
+                    <div class="user-avatar">
+                        <img src="https://ui-avatars.com/api/?name=User&background=00E5FF&color=121318" alt="User">
+                    </div>
+                </div>
+            </header>
+
+            <div class="shared-container">
+                <div class="page-header">
+                    <h1 class="page-title">Shared Files</h1>
+                </div>
+
+                <div class="tabs">
+                    <div class="tab active">Shared by Me</div>
+                    <div class="tab">Shared with Me</div>
+                    <div class="tab">Public Links</div>
+                </div>
+
+                <div class="card">
+                    <table class="files-table">
+                        <thead>
+                            <tr>
+                                <th>File Name</th>
+                                <th>Shared With</th>
+                                <th>Access Level</th>
+                                <th>Expiry Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="file-name">
+                                        <i class="fa-solid fa-file-pdf file-icon pdf"></i>
+                                        Financial_Report_2023.pdf
+                                    </div>
+                                </td>
+                                <td><span class="user-address-badge">0x9F8...2B11</span></td>
+                                <td>Read-Only</td>
+                                <td>Dec 31, 2024</td>
+                                <td><span class="action-link"><i class="fa-solid fa-link-slash"></i> Revoke</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="file-name">
+                                        <i class="fa-solid fa-folder file-icon" style="color:#FFD166"></i>
+                                        Marketing Assets
+                                    </div>
+                                </td>
+                                <td><span class="user-address-badge">0x3A2...9C04</span></td>
+                                <td>Can Edit</td>
+                                <td>Never</td>
+                                <td><span class="action-link"><i class="fa-solid fa-link-slash"></i> Revoke</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="file-name">
+                                        <i class="fa-solid fa-file-image file-icon image"></i>
+                                        App_Mockups_v2.fig
+                                    </div>
+                                </td>
+                                <td><span class="user-address-badge">Public Link</span></td>
+                                <td>View Only</td>
+                                <td>Nov 15, 2023</td>
+                                <td><span class="action-link"><i class="fa-solid fa-link-slash"></i> Revoke</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

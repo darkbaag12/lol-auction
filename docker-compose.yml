@@ -20,7 +20,7 @@ services:
       retries: 5
 
   backend:
-    image: asia-northeast3-docker.pkg.dev/gyeongmae-program/lost-auction/auction-backend:latest
+    build: ./backend
     container_name: auction-backend
     depends_on:
       db:
@@ -37,7 +37,7 @@ services:
     restart: unless-stopped
 
   frontend:
-    image: asia-northeast3-docker.pkg.dev/gyeongmae-program/auction-repo/frontend:latest
+    build: ./frontend
     container_name: auction-frontend
     depends_on:
       - backend

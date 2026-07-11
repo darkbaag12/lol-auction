@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet & Transactions - Decentralized FS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .wallet-container {
+            padding: 40px;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .wallet-hero {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 24px;
+        }
+        .balance-card {
+            background: linear-gradient(135deg, rgba(0, 229, 255, 0.1), rgba(0, 0, 0, 0.4));
+            border-color: rgba(0, 229, 255, 0.3);
+            text-align: center;
+            padding: 40px 24px;
+        }
+        .balance-card h1 {
+            font-size: 48px;
+            margin: 16px 0;
+            color: var(--accent-blue);
+            text-shadow: 0 0 20px var(--accent-blue-glow);
+        }
+        .balance-actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        .tx-type {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .tx-type.storage { color: var(--accent-blue); }
+        .tx-type.receive { color: var(--accent-green); }
+        .tx-type.send { color: #FFD166; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon"><i class="fa-solid fa-cubes-stacked"></i></div>
+                <h2>NexusFS</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="explorer.html" class="nav-item"><i class="fa-solid fa-folder-open"></i> File Explorer</a>
+                <a href="shared.html" class="nav-item"><i class="fa-solid fa-share-nodes"></i> Shared Files</a>
+                <a href="wallet.html" class="nav-item active"><i class="fa-solid fa-wallet"></i> Wallet & Tx</a>
+                <a href="nodes.html" class="nav-item"><i class="fa-solid fa-network-wired"></i> Node Status</a>
+                <a href="settings.html" class="nav-item"><i class="fa-solid fa-gear"></i> Settings</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="storage-mini">
+                    <p>Storage (28%)</p>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: 28%;"></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-header">
+                <div class="search-bar">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" placeholder="Search Tx Hash...">
+                </div>
+                <div class="header-actions">
+                    <div class="network-status">
+                        <span class="status-dot"></span>
+                        Mainnet - Connected
+                    </div>
+                    <button class="wallet-btn">
+                        <i class="fa-brands fa-ethereum"></i> 0x71C...3A92
+                    </button>
+                    <div class="user-avatar">
+                        <img src="https://ui-avatars.com/api/?name=User&background=00E5FF&color=121318" alt="User">
+                    </div>
+                </div>
+            </header>
+
+            <div class="wallet-container">
+                <div class="wallet-hero">
+                    <div class="card balance-card">
+                        <h3>Total Balance</h3>
+                        <h1>450.25 FIL</h1>
+                        <p class="color-gray">≈ $2,148.50 USD</p>
+                        <div class="balance-actions">
+                            <button class="btn-primary"><i class="fa-solid fa-arrow-down"></i> Receive</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-arrow-up"></i> Send</button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Balance History</h3>
+                            <div class="tabs" style="border:none; margin:0; gap:12px;">
+                                <div class="tab active" style="padding:0">1W</div>
+                                <div class="tab" style="padding:0">1M</div>
+                                <div class="tab" style="padding:0">1Y</div>
+                            </div>
+                        </div>
+                        <div style="height: 200px; display:flex; align-items:flex-end; gap:8px; padding-top:20px;">
+                            <!-- Mock Bar Chart -->
+                            <div style="background:var(--accent-blue); width: 100%; height: 30%; border-radius:4px 4px 0 0; opacity:0.5;"></div>
+                            <div style="background:var(--accent-blue); width: 100%; height: 40%; border-radius:4px 4px 0 0; opacity:0.6;"></div>
+                            <div style="background:var(--accent-blue); width: 100%; height: 35%; border-radius:4px 4px 0 0; opacity:0.5;"></div>
+                            <div style="background:var(--accent-blue); width: 100%; height: 60%; border-radius:4px 4px 0 0; opacity:0.8;"></div>
+                            <div style="background:var(--accent-blue); width: 100%; height: 50%; border-radius:4px 4px 0 0; opacity:0.7;"></div>
+                            <div style="background:var(--accent-blue); width: 100%; height: 80%; border-radius:4px 4px 0 0; opacity:0.9;"></div>
+                            <div style="background:var(--accent-blue); width: 100%; height: 100%; border-radius:4px 4px 0 0; box-shadow:0 0 10px var(--accent-blue-glow);"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Transaction History</h3>
+                        <button class="btn-secondary"><i class="fa-solid fa-download"></i> Export CSV</button>
+                    </div>
+                    <table class="files-table">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Tx Hash</th>
+                                <th>Amount</th>
+                                <th>Gas Fee</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="tx-type storage">Storage Deal</span></td>
+                                <td><span class="cid-badge">0x8f2a...9c11</span></td>
+                                <td>- 2.5 FIL</td>
+                                <td>0.002 FIL</td>
+                                <td>Today, 14:30</td>
+                                <td><span class="status-badge secure">Success</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="tx-type receive">Receive</span></td>
+                                <td><span class="cid-badge">0x4a1b...2d9f</span></td>
+                                <td>+ 50.0 FIL</td>
+                                <td>0.001 FIL</td>
+                                <td>Oct 15, 09:12</td>
+                                <td><span class="status-badge secure">Success</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="tx-type send">Send</span></td>
+                                <td><span class="cid-badge">0x2c9e...7b4a</span></td>
+                                <td>- 10.0 FIL</td>
+                                <td>0.005 FIL</td>
+                                <td>Oct 12, 18:45</td>
+                                <td><span class="status-badge secure">Success</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="tx-type storage">Storage Deal</span></td>
+                                <td><span class="cid-badge">0x9d3f...1a8c</span></td>
+                                <td>- 1.2 FIL</td>
+                                <td>0.002 FIL</td>
+                                <td>Oct 10, 11:20</td>
+                                <td><span class="status-badge secure">Success</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

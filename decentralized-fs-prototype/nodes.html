@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node Status - Decentralized FS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .nodes-container {
+            padding: 40px;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+        .stat-card {
+            padding: 24px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--accent-green);
+            margin: 12px 0 4px;
+        }
+        .provider-badge {
+            background: rgba(0, 229, 255, 0.1);
+            color: var(--accent-blue);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .ping-good { color: var(--accent-green); }
+        .ping-avg { color: #FFD166; }
+        
+        .map-large {
+            height: 400px;
+            background: url('https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg') no-repeat center;
+            background-size: cover;
+            opacity: 0.3;
+            border-radius: 12px;
+            position: relative;
+        }
+        /* Customizing map for tech feel */
+        .map-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(18, 19, 24, 0.5);
+        }
+        .node-point {
+            position: absolute;
+            width: 8px; height: 8px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-blue);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon"><i class="fa-solid fa-cubes-stacked"></i></div>
+                <h2>NexusFS</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="explorer.html" class="nav-item"><i class="fa-solid fa-folder-open"></i> File Explorer</a>
+                <a href="shared.html" class="nav-item"><i class="fa-solid fa-share-nodes"></i> Shared Files</a>
+                <a href="wallet.html" class="nav-item"><i class="fa-solid fa-wallet"></i> Wallet & Tx</a>
+                <a href="nodes.html" class="nav-item active"><i class="fa-solid fa-network-wired"></i> Node Status</a>
+                <a href="settings.html" class="nav-item"><i class="fa-solid fa-gear"></i> Settings</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="storage-mini">
+                    <p>Storage (28%)</p>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: 28%;"></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-header">
+                <div class="search-bar">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" placeholder="Search Node ID...">
+                </div>
+                <div class="header-actions">
+                    <div class="network-status">
+                        <span class="status-dot"></span>
+                        Mainnet - Connected
+                    </div>
+                    <button class="wallet-btn">
+                        <i class="fa-brands fa-ethereum"></i> 0x71C...3A92
+                    </button>
+                    <div class="user-avatar">
+                        <img src="https://ui-avatars.com/api/?name=User&background=00E5FF&color=121318" alt="User">
+                    </div>
+                </div>
+            </header>
+
+            <div class="nodes-container">
+                <div class="stats-grid">
+                    <div class="card stat-card">
+                        <h3 class="color-gray">Total Network Capacity</h3>
+                        <div class="stat-value" style="color:var(--accent-blue)">18.4 EB</div>
+                        <div class="trend positive"><i class="fa-solid fa-arrow-trend-up"></i> +5.2%</div>
+                    </div>
+                    <div class="card stat-card">
+                        <h3 class="color-gray">Active Storage Providers</h3>
+                        <div class="stat-value">3,492</div>
+                        <div class="trend positive"><i class="fa-solid fa-arrow-trend-up"></i> +12</div>
+                    </div>
+                    <div class="card stat-card">
+                        <h3 class="color-gray">Current Block Height</h3>
+                        <div class="stat-value" style="color:var(--accent-purple)">3,849,205</div>
+                        <p class="color-gray" style="font-size:12px; margin-top:8px;">Syncing (~30s)</p>
+                    </div>
+                    <div class="card stat-card">
+                        <h3 class="color-gray">Network Hashrate</h3>
+                        <div class="stat-value" style="color:#FFD166">145 TH/s</div>
+                        <div class="trend positive"><i class="fa-solid fa-arrow-trend-up"></i> Stable</div>
+                    </div>
+                </div>
+
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <div class="map-large">
+                        <div class="map-overlay">
+                            <!-- Simulated nodes around the world -->
+                            <div class="node-point" style="top:30%; left:22%;"></div>
+                            <div class="node-point" style="top:35%; left:25%;"></div>
+                            <div class="node-point" style="top:25%; left:50%;"></div>
+                            <div class="node-point" style="top:28%; left:53%;"></div>
+                            <div class="node-point" style="top:60%; left:30%;"></div>
+                            <div class="node-point" style="top:40%; left:75%;"></div>
+                            <div class="node-point" style="top:45%; left:85%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Your Pinned Providers</h3>
+                        <button class="btn-secondary"><i class="fa-solid fa-plus"></i> Add Provider</button>
+                    </div>
+                    <table class="files-table">
+                        <thead>
+                            <tr>
+                                <th>Provider ID</th>
+                                <th>Region</th>
+                                <th>Storage Power</th>
+                                <th>Latency</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="provider-badge">f012345</span></td>
+                                <td>North America (US-East)</td>
+                                <td>14.5 PiB</td>
+                                <td class="ping-good">24ms</td>
+                                <td><span class="status-badge secure">Online</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="provider-badge">f089231</span></td>
+                                <td>Europe (Frankfurt)</td>
+                                <td>8.2 PiB</td>
+                                <td class="ping-good">45ms</td>
+                                <td><span class="status-badge secure">Online</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="provider-badge">f044912</span></td>
+                                <td>Asia (Singapore)</td>
+                                <td>22.1 PiB</td>
+                                <td class="ping-avg">120ms</td>
+                                <td><span class="status-badge secure">Online</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

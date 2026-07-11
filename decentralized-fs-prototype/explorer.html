@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Explorer - Decentralized FS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Additional styles for the File Explorer */
+        .explorer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .breadcrumb-item {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .breadcrumb-item:hover {
+            color: var(--accent-blue);
+        }
+
+        .breadcrumb-separator {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 14px;
+        }
+
+        .breadcrumb-current {
+            color: var(--text-main);
+        }
+
+        .explorer-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-family: var(--font-primary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .action-btn.primary {
+            background: var(--accent-blue);
+            color: #000;
+            border-color: var(--accent-blue);
+        }
+
+        .action-btn.primary:hover {
+            background: var(--accent-blue-hover);
+            box-shadow: 0 0 15px var(--accent-blue-glow);
+        }
+
+        /* Explorer Grid View */
+        .explorer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .file-card {
+            background: rgba(18, 19, 24, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .file-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--accent-blue);
+            transform: translateY(-2px);
+        }
+
+        .file-card-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .folder-icon { color: #FFD166; }
+
+        .file-card-name {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            word-break: break-all;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .file-card-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .file-card-actions {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            opacity: 0;
+            transition: var(--transition);
+            display: flex;
+            gap: 8px;
+        }
+
+        .file-card:hover .file-card-actions {
+            opacity: 1;
+        }
+
+        .icon-btn {
+            background: rgba(0, 0, 0, 0.5);
+            border: none;
+            color: var(--text-main);
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .icon-btn:hover {
+            background: var(--accent-blue);
+            color: #000;
+        }
+
+        .explorer-container {
+            flex: 1;
+            padding: 40px;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon"><i class="fa-solid fa-cubes-stacked"></i></div>
+                <h2>NexusFS</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="explorer.html" class="nav-item active"><i class="fa-solid fa-folder-open"></i> File Explorer</a>
+                <a href="shared.html" class="nav-item"><i class="fa-solid fa-share-nodes"></i> Shared Files</a>
+                <a href="wallet.html" class="nav-item"><i class="fa-solid fa-wallet"></i> Wallet & Tx</a>
+                <a href="nodes.html" class="nav-item"><i class="fa-solid fa-network-wired"></i> Node Status</a>
+                <a href="settings.html" class="nav-item"><i class="fa-solid fa-gear"></i> Settings</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="storage-mini">
+                    <p>Storage (28%)</p>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: 28%;"></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="search-bar">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" placeholder="Search files, CIDs, or addresses...">
+                </div>
+                <div class="header-actions">
+                    <div class="network-status">
+                        <span class="status-dot"></span>
+                        Mainnet - Connected
+                    </div>
+                    <button class="wallet-btn">
+                        <i class="fa-brands fa-ethereum"></i> 0x71C...3A92
+                    </button>
+                    <div class="user-avatar">
+                        <img src="https://ui-avatars.com/api/?name=User&background=00E5FF&color=121318" alt="User">
+                    </div>
+                </div>
+            </header>
+
+            <!-- Explorer Content -->
+            <div class="explorer-container">
+                <div class="explorer-header">
+                    <div class="breadcrumb">
+                        <a href="#" class="breadcrumb-item"><i class="fa-solid fa-house"></i> Root</a>
+                        <i class="fa-solid fa-chevron-right breadcrumb-separator"></i>
+                        <a href="#" class="breadcrumb-item">Documents</a>
+                        <i class="fa-solid fa-chevron-right breadcrumb-separator"></i>
+                        <span class="breadcrumb-current">Q4 Reports</span>
+                    </div>
+                    <div class="explorer-actions">
+                        <button class="action-btn"><i class="fa-solid fa-folder-plus"></i> New Folder</button>
+                        <button class="action-btn primary"><i class="fa-solid fa-cloud-arrow-up"></i> Upload</button>
+                    </div>
+                </div>
+
+                <div class="card" style="min-height: 500px;">
+                    <div class="explorer-grid">
+                        
+                        <!-- Folders -->
+                        <div class="file-card">
+                            <div class="file-card-actions">
+                                <button class="icon-btn"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                            </div>
+                            <div class="file-card-icon folder-icon"><i class="fa-solid fa-folder"></i></div>
+                            <div class="file-card-name">Finance</div>
+                            <div class="file-card-meta">3 items • Sep 24</div>
+                        </div>
+
+                        <div class="file-card">
+                            <div class="file-card-actions">
+                                <button class="icon-btn"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                            </div>
+                            <div class="file-card-icon folder-icon"><i class="fa-solid fa-folder"></i></div>
+                            <div class="file-card-name">Marketing Assets</div>
+                            <div class="file-card-meta">12 items • Oct 01</div>
+                        </div>
+
+                        <!-- Files -->
+                        <div class="file-card">
+                            <div class="file-card-actions">
+                                <button class="icon-btn"><i class="fa-solid fa-download"></i></button>
+                                <button class="icon-btn"><i class="fa-solid fa-share-nodes"></i></button>
+                            </div>
+                            <div class="file-card-icon file-icon video"><i class="fa-solid fa-file-video"></i></div>
+                            <div class="file-card-name">Q4_Marketing_Video.mp4</div>
+                            <div class="file-card-meta">245 MB • Oct 12</div>
+                            <span class="status-badge secure"><i class="fa-solid fa-lock"></i></span>
+                        </div>
+
+                        <div class="file-card">
+                            <div class="file-card-actions">
+                                <button class="icon-btn"><i class="fa-solid fa-download"></i></button>
+                                <button class="icon-btn"><i class="fa-solid fa-share-nodes"></i></button>
+                            </div>
+                            <div class="file-card-icon file-icon pdf"><i class="fa-solid fa-file-pdf"></i></div>
+                            <div class="file-card-name">Financial_Report_2023.pdf</div>
+                            <div class="file-card-meta">4.2 MB • Oct 10</div>
+                            <span class="status-badge secure"><i class="fa-solid fa-lock"></i></span>
+                        </div>
+
+                        <div class="file-card">
+                            <div class="file-card-actions">
+                                <button class="icon-btn"><i class="fa-solid fa-download"></i></button>
+                                <button class="icon-btn"><i class="fa-solid fa-share-nodes"></i></button>
+                            </div>
+                            <div class="file-card-icon file-icon image"><i class="fa-solid fa-file-image"></i></div>
+                            <div class="file-card-name">App_Mockups_v2.fig</div>
+                            <div class="file-card-meta">128 MB • Oct 08</div>
+                            <span class="status-badge pending"><i class="fa-solid fa-spinner fa-spin"></i></span>
+                        </div>
+
+                        <div class="file-card">
+                            <div class="file-card-actions">
+                                <button class="icon-btn"><i class="fa-solid fa-download"></i></button>
+                                <button class="icon-btn"><i class="fa-solid fa-share-nodes"></i></button>
+                            </div>
+                            <div class="file-card-icon file-icon code"><i class="fa-solid fa-file-code"></i></div>
+                            <div class="file-card-name">SmartContract_V1.sol</div>
+                            <div class="file-card-meta">12 KB • Oct 05</div>
+                            <span class="status-badge secure"><i class="fa-solid fa-lock"></i></span>
+                        </div>
+
+                        <div class="file-card">
+                            <div class="file-card-actions">
+                                <button class="icon-btn"><i class="fa-solid fa-download"></i></button>
+                                <button class="icon-btn"><i class="fa-solid fa-share-nodes"></i></button>
+                            </div>
+                            <div class="file-card-icon"><i class="fa-solid fa-file-lines" style="color: #8A8F98;"></i></div>
+                            <div class="file-card-name">Meeting_Notes.txt</div>
+                            <div class="file-card-meta">3 KB • Sep 30</div>
+                            <span class="status-badge secure"><i class="fa-solid fa-lock"></i></span>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

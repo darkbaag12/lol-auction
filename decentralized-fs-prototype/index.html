@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decentralized FS Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon"><i class="fa-solid fa-cubes-stacked"></i></div>
+                <h2>NexusFS</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="explorer.html" class="nav-item"><i class="fa-solid fa-folder-open"></i> File Explorer</a>
+                <a href="shared.html" class="nav-item"><i class="fa-solid fa-share-nodes"></i> Shared Files</a>
+                <a href="wallet.html" class="nav-item"><i class="fa-solid fa-wallet"></i> Wallet & Tx</a>
+                <a href="nodes.html" class="nav-item"><i class="fa-solid fa-network-wired"></i> Node Status</a>
+                <a href="settings.html" class="nav-item"><i class="fa-solid fa-gear"></i> Settings</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="storage-mini">
+                    <p>Storage (28%)</p>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: 28%;"></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="search-bar">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" placeholder="Search files, CIDs, or addresses...">
+                </div>
+                <div class="header-actions">
+                    <div class="network-status">
+                        <span class="status-dot"></span>
+                        Mainnet - Connected
+                    </div>
+                    <button class="wallet-btn">
+                        <i class="fa-brands fa-ethereum"></i> 0x71C...3A92
+                    </button>
+                    <div class="user-avatar">
+                        <img src="https://ui-avatars.com/api/?name=User&background=00E5FF&color=121318" alt="User">
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-grid">
+                
+                <!-- Left/Center Column -->
+                <div class="center-column">
+                    <!-- Summary Cards -->
+                    <div class="summary-cards">
+                        <div class="card summary-card">
+                            <div class="card-icon blue-glow"><i class="fa-solid fa-database"></i></div>
+                            <div class="card-info">
+                                <h3>Storage Used</h3>
+                                <h2>1.4 TB <span class="subtitle">/ 5.0 TB</span></h2>
+                            </div>
+                            <div class="radial-progress">
+                                <svg viewBox="0 0 36 36" class="circular-chart blue">
+                                    <path class="circle-bg"
+                                        d="M18 2.0845
+                                        a 15.9155 15.9155 0 0 1 0 31.831
+                                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                                    />
+                                    <path class="circle"
+                                        stroke-dasharray="28, 100"
+                                        d="M18 2.0845
+                                        a 15.9155 15.9155 0 0 1 0 31.831
+                                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                                    />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <div class="card summary-card">
+                            <div class="card-icon green-glow"><i class="fa-solid fa-coins"></i></div>
+                            <div class="card-info">
+                                <h3>Wallet Balance</h3>
+                                <h2>450.25 <span class="currency">FIL</span></h2>
+                            </div>
+                            <div class="trend positive">
+                                <i class="fa-solid fa-arrow-trend-up"></i> +2.4%
+                            </div>
+                        </div>
+
+                        <div class="card summary-card">
+                            <div class="card-icon purple-glow"><i class="fa-solid fa-server"></i></div>
+                            <div class="card-info">
+                                <h3>Active Nodes</h3>
+                                <h2>12,402 <span class="subtitle">Peers</span></h2>
+                            </div>
+                            <div class="trend positive">
+                                <i class="fa-solid fa-heart-pulse"></i> Healthy
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upload Zone -->
+                    <div class="card upload-zone" id="drop-zone">
+                        <div class="upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                        <h3>Drag & Drop Files Here</h3>
+                        <p>Upload to encrypt and shard across the blockchain</p>
+                        <button class="btn-primary">Browse Files</button>
+                    </div>
+
+                    <!-- Recent Files -->
+                    <div class="card recent-files">
+                        <div class="card-header">
+                            <h3>Recent Files</h3>
+                            <button class="btn-text">View All</button>
+                        </div>
+                        <table class="files-table">
+                            <thead>
+                                <tr>
+                                    <th>File Name</th>
+                                    <th>Size</th>
+                                    <th>Upload Date</th>
+                                    <th>IPFS CID</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="file-name">
+                                            <i class="fa-solid fa-file-video file-icon video"></i>
+                                            Q4_Marketing_Video.mp4
+                                        </div>
+                                    </td>
+                                    <td>245 MB</td>
+                                    <td>Oct 12, 2023</td>
+                                    <td><span class="cid-badge">QmYwAP...j3fR</span></td>
+                                    <td><span class="status-badge secure"><i class="fa-solid fa-lock"></i> Encrypted</span></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="file-name">
+                                            <i class="fa-solid fa-file-pdf file-icon pdf"></i>
+                                            Financial_Report_2023.pdf
+                                        </div>
+                                    </td>
+                                    <td>4.2 MB</td>
+                                    <td>Oct 10, 2023</td>
+                                    <td><span class="cid-badge">QmZ1bV...p9qK</span></td>
+                                    <td><span class="status-badge secure"><i class="fa-solid fa-lock"></i> Encrypted</span></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="file-name">
+                                            <i class="fa-solid fa-file-image file-icon image"></i>
+                                            App_Mockups_v2.fig
+                                        </div>
+                                    </td>
+                                    <td>128 MB</td>
+                                    <td>Oct 08, 2023</td>
+                                    <td><span class="cid-badge">QmX8cP...m2xL</span></td>
+                                    <td><span class="status-badge pending"><i class="fa-solid fa-spinner fa-spin"></i> Sharding</span></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="file-name">
+                                            <i class="fa-solid fa-file-code file-icon code"></i>
+                                            SmartContract_V1.sol
+                                        </div>
+                                    </td>
+                                    <td>12 KB</td>
+                                    <td>Oct 05, 2023</td>
+                                    <td><span class="cid-badge">QmW4rT...v8nZ</span></td>
+                                    <td><span class="status-badge secure"><i class="fa-solid fa-lock"></i> Encrypted</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Right Column (Activity) -->
+                <div class="right-column">
+                    <div class="card recent-tx">
+                        <div class="card-header">
+                            <h3>Recent Transactions</h3>
+                            <button class="btn-icon"><i class="fa-solid fa-ellipsis"></i></button>
+                        </div>
+                        <div class="tx-list">
+                            
+                            <div class="tx-item">
+                                <div class="tx-icon success">
+                                    <i class="fa-solid fa-check"></i>
+                                </div>
+                                <div class="tx-details">
+                                    <div class="tx-title">File Uploaded <span class="tx-time">2m ago</span></div>
+                                    <div class="tx-meta">
+                                        <span class="tx-hash">0x8f2a...9c11</span>
+                                        <span class="tx-gas"><i class="fa-solid fa-gas-pump"></i> 0.002 FIL</span>
+                                    </div>
+                                    <div class="tx-block">Block: #3849201</div>
+                                </div>
+                            </div>
+
+                            <div class="tx-item">
+                                <div class="tx-icon success">
+                                    <i class="fa-solid fa-check"></i>
+                                </div>
+                                <div class="tx-details">
+                                    <div class="tx-title">Storage Deal Sealed <span class="tx-time">1h ago</span></div>
+                                    <div class="tx-meta">
+                                        <span class="tx-hash">0x4a1b...2d9f</span>
+                                        <span class="tx-gas"><i class="fa-solid fa-gas-pump"></i> 0.015 FIL</span>
+                                    </div>
+                                    <div class="tx-block">Block: #3848950</div>
+                                </div>
+                            </div>
+
+                            <div class="tx-item">
+                                <div class="tx-icon pending">
+                                    <i class="fa-solid fa-arrow-rotate-right fa-spin"></i>
+                                </div>
+                                <div class="tx-details">
+                                    <div class="tx-title">File Sharding <span class="tx-time">In Progress</span></div>
+                                    <div class="tx-meta">
+                                        <span class="tx-hash">0x2c9e...7b4a</span>
+                                        <span class="tx-gas"><i class="fa-solid fa-gas-pump"></i> Est. 0.008 FIL</span>
+                                    </div>
+                                    <div class="tx-block">Block: Pending</div>
+                                </div>
+                            </div>
+                            
+                            <div class="tx-item">
+                                <div class="tx-icon success">
+                                    <i class="fa-solid fa-check"></i>
+                                </div>
+                                <div class="tx-details">
+                                    <div class="tx-title">Payment Received <span class="tx-time">5h ago</span></div>
+                                    <div class="tx-meta">
+                                        <span class="tx-hash">0x9d3f...1a8c</span>
+                                        <span class="tx-gas"><i class="fa-solid fa-gas-pump"></i> 0.001 FIL</span>
+                                    </div>
+                                    <div class="tx-block">Block: #3847120</div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <button class="btn-secondary full-width mt-4">View Explorer</button>
+                    </div>
+                    
+                    <div class="card storage-map">
+                         <div class="card-header">
+                            <h3>Geographic Shards</h3>
+                        </div>
+                        <div class="map-placeholder">
+                            <i class="fa-solid fa-earth-americas"></i>
+                            <div class="map-dots">
+                                <!-- Simulated dots on a map -->
+                                <div class="dot d1"></div>
+                                <div class="dot d2"></div>
+                                <div class="dot d3"></div>
+                                <div class="dot d4"></div>
+                                <div class="dot d5"></div>
+                            </div>
+                        </div>
+                        <p class="text-center text-sm mt-2 color-gray">Data distributed across 5 regions</p>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
